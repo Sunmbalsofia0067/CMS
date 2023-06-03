@@ -24,6 +24,7 @@
     "nodemon": "^2.0.22",
     "pg": "^8.7.3",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.21.1"
+    "sequelize": "^6.21.1",
+    "universal-cookie": "^4.0.4"
   }
 }
