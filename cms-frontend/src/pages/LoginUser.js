@@ -1,91 +1,103 @@
-import { useState } from 'react'
-import { toast } from 'react-toastify'
-import network from '../utils'
-import { Form, Button } from 'react-bootstrap'
+import { useContext, useState } from "react";
+import { toast } from "react-toastify";
+import network from "../utils";
+import { Form, Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import Cookies from "universal-cookie";
+import { Link } from "react-router-dom";
+import * as routes from "../constants/routePaths";
+import { AppContext } from "../contexts/AppContext";
 
 const LoginUser = () => {
-  const [userName, setUserName] = useState('')
-  const [email, setEmail] = useState('')
-  const [age, setAge] = useState('')
+  const [email, setEmail] = useState("test@test.com");
+  const [password, setPassword] = useState("123456");
 
-  const loginUser = async event => {
+  const { data, setUserData } = useContext(AppContext);
+
+  const navigate = useNavigate();
+  const cookies = new Cookies();
+
+  const loginUser = async (event) => {
     try {
-      event.preventDefault()
-        await network.post('http://localhost:8080/api/users', {
-          name: userName,
-          email: email,
-          age: age
-        })
-        setAge('')
-        setEmail('')
-        setUserName('')
-        toast.info('🦄 User Successfully added!')
+      event.preventDefault();
+
+      if (!email || !password) {
+        toast.error("Fill all fields");
+        return;
+      }
+
+      const res = await network.post({
+        path: "users/login",
+        options: {
+          email,
+          password,
+        },
+      });
+
+      cookies.set("authorization", res.data.token);
+      setUserData(res?.data?.user);
+
+      setEmail("");
+      setPassword("");
+      // toast.info("🦄 User logged in successfully!");
+
+      navigate(routes.homePage);
     } catch (err) {
-      toast.error('🦄 Something went Wrong!!!')
+      console.log(err);
+      toast.error(err?.response?.data?.message || "🦄 Something went Wrong!!!");
     }
-  }
+  };
   return (
-    <div>
-      <div>
+    <div className="auth-form-wrapper">
+      <div className="auth-form">
+        <div>
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              padding: '10px'
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "10px",
             }}
           >
-            <h2>Register User </h2>
-            {/* <Button variant='outline-info'>
-              <Link to={routes.usersPage}> Homepage</Link>
-            </Button> */}
+            <h2>Login Here</h2>
           </div>
+        </div>
+
+        <Form onSubmit={loginUser}>
+          <Form.Group className="m-3 mt-1 w-50" controlId="formBasicEmail">
+            <Form.Label>Email</Form.Label>
+            <Form.Control
+              type="email"
+              value={email}
+              placeholder="Enter Email"
+              onChange={(event) => {
+                setEmail(event.target.value);
+              }}
+            />
+          </Form.Group>
+
+          <Form.Group className="m-3 w-50" controlId="formBasicEmail">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="password"
+              value={password}
+              placeholder="Enter Password"
+              onChange={(event) => {
+                setPassword(event.target.value);
+              }}
+            />
+          </Form.Group>
+
+          <Form.Group className="m-3 w-50" controlId="formBasicSubmit">
+            <Button variant="primary" type="submit">
+              Login
+            </Button>
+            <span style={{ marginLeft: "10px" }}>OR</span>
+          <Link style={{ marginLeft: "10px" }} to={routes.registerUserPage}>register here</Link>
+          </Form.Group>
+        </Form>
       </div>
-
-      <Form onSubmit={loginUser}>
-        <Form.Group className='m-3 w-50' controlId='formBasicUsername'>
-          <Form.Label>Username</Form.Label>
-          <Form.Control
-            type='text'
-            placeholder='Enter Username'
-            value={userName}
-            onChange={event => {
-              setUserName(event.target.value)
-            }}
-          />
-        </Form.Group>
-
-        <Form.Group className='m-3 w-50' controlId='formBasicEmail'>
-          <Form.Label>Email</Form.Label>
-          <Form.Control
-            type='email'
-            value={email}
-            placeholder='Enter Email'
-            onChange={event => {
-              setEmail(event.target.value)
-            }}
-          />
-        </Form.Group>
-
-        <Form.Group className='m-3 w-50' controlId='formBasicEmail'>
-          <Form.Label>Age</Form.Label>
-          <Form.Control
-            type='number'
-            value={age}
-            placeholder='Enter Age'
-            onChange={event => {
-              setAge(event.target.value)
-            }}
-          />
-        </Form.Group>
-
-        <Form.Group className='m-3 w-50' controlId='formBasicSubmit'>
-          <Button variant='primary' type='submit'>
-            Login
-          </Button>
-        </Form.Group>
-      </Form>
     </div>
-  )
-}
+  );
+};
 
 export default LoginUser;

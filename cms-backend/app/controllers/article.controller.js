@@ -2,7 +2,6 @@ const db = require("../models");
 const Article = db.articles;
 const Op = db.Sequelize.Op;
 
-// Create and Save a new Article
 exports.create = (req, res) => {
   // Validate request
   if (!req.body.title) {
@@ -14,6 +13,7 @@ exports.create = (req, res) => {
 
   // Create a Article
   const article = {
+    userId: req.userId,
     title: req.body.title,
     description: req.body.description,
     published: req.body.published ? req.body.published : false
@@ -34,14 +34,17 @@ exports.create = (req, res) => {
 
 // Retrieve all Articles from the database.
 exports.findAll = (req, res) => {
+  const { userId } = req;
+  console.log('67890-098789098767890');
   const title = req.query.title;
-  var condition = title ? { title: { [Op.iLike]: `%${title}%` } } : null;
+  var condition = title ? { title: { [Op.iLike]: `%${title}%` } } : {...(userId ? {userId}: {})};
 
   Article.findAll({ where: condition })
     .then(data => {
       res.send(data);
     })
     .catch(err => {
+      console.log(err);
       res.status(500).send({
         message:
           err.message || "Some error occurred while retrieving articles."
@@ -53,8 +56,11 @@ exports.findAll = (req, res) => {
 exports.findOne = (req, res) => {
   const id = req.params.id;
 
+  console.log(id);
+
   Article.findByPk(id)
     .then(data => {
+      console.log(data);
       res.send(data);
     })
     .catch(err => {
@@ -66,10 +72,11 @@ exports.findOne = (req, res) => {
 
 // Update a Article by the id in the request
 exports.update = (req, res) => {
+  const { userId } = req;
   const id = req.params.id;
 
   Article.update(req.body, {
-    where: { id: id }
+    where: { id: id, ...(userId ? {userId}: {}) }
   })
     .then(num => {
       if (num == 1) {
@@ -91,10 +98,11 @@ exports.update = (req, res) => {
 
 // Delete a Article with the specified id in the request
 exports.delete = (req, res) => {
+  const { userId } = req;
   const id = req.params.id;
 
   Article.destroy({
-    where: { id: id }
+    where: { id: id, ...(userId ? {userId}: {}) }
   })
     .then(num => {
       if (num == 1) {

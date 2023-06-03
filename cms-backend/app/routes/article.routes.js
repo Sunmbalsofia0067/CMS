@@ -1,10 +1,27 @@
-module.exports = app => {
+const authorize = require("../middlewares/auth.js");
+
+module.exports = (app) => {
   const articles = require("../controllers/article.controller.js");
 
   var router = require("express").Router();
 
+
+  // ========================== Protected Routes ==================================================
   // Create a new Article
-  router.post("/", articles.create);
+  router.post("/", authorize, articles.create);
+
+  // Retrieve all logged in user Articles
+  router.get("/my-articles", authorize, articles.findAll);
+
+    // Update a new Article
+    router.post("/:id", authorize, articles.update);
+
+  // Delete logged in user Article
+  router.delete("/:id", authorize, articles.delete);
+  
+// ========================== Protected Routes End ==================================================
+
+
 
   // Retrieve all Articles
   router.get("/", articles.findAll);
