@@ -3,26 +3,22 @@ import { toast } from 'react-toastify'
 import network from '../utils'
 import { Form, Button } from 'react-bootstrap'
 
-const RegisterUser = () => {
+const LoginUser = () => {
   const [userName, setUserName] = useState('')
   const [email, setEmail] = useState('')
   const [age, setAge] = useState('')
-  const [password, setPassword] = useState('')
 
-
-  const registerUser = async event => {
+  const loginUser = async event => {
     try {
       event.preventDefault()
         await network.post('http://localhost:8080/api/users', {
           name: userName,
           email: email,
-          age: age,
-          password: password
+          age: age
         })
         setAge('')
         setEmail('')
         setUserName('')
-        setPassword('')
         toast.info('🦄 User Successfully added!')
     } catch (err) {
       toast.error('🦄 Something went Wrong!!!')
@@ -45,7 +41,7 @@ const RegisterUser = () => {
           </div>
       </div>
 
-      <Form onSubmit={registerUser}>
+      <Form onSubmit={loginUser}>
         <Form.Group className='m-3 w-50' controlId='formBasicUsername'>
           <Form.Label>Username</Form.Label>
           <Form.Control
@@ -69,17 +65,6 @@ const RegisterUser = () => {
             }}
           />
         </Form.Group>
-        <Form.Group className='m-3 w-50' controlId='formBasicEmail'>
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type='password'
-            value={password}
-            placeholder='Enter Password'
-            onChange={event => {
-              setEmail(event.target.value)
-            }}
-          />
-        </Form.Group>
 
         <Form.Group className='m-3 w-50' controlId='formBasicEmail'>
           <Form.Label>Age</Form.Label>
@@ -95,7 +80,7 @@ const RegisterUser = () => {
 
         <Form.Group className='m-3 w-50' controlId='formBasicSubmit'>
           <Button variant='primary' type='submit'>
-            Register
+            Login
           </Button>
         </Form.Group>
       </Form>
@@ -103,4 +88,4 @@ const RegisterUser = () => {
   )
 }
 
-export default RegisterUser;
+export default LoginUser;
