@@ -9,8 +9,8 @@ import * as routes from "../constants/routePaths";
 import { AppContext } from "../contexts/AppContext";
 
 const LoginUser = () => {
-  const [email, setEmail] = useState("test@test.com");
-  const [password, setPassword] = useState("123456");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const { data, setUserData } = useContext(AppContext);
 

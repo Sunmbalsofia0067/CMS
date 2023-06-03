@@ -6,10 +6,10 @@ import { Link, useNavigate } from "react-router-dom";
 import * as routes from "../constants/routePaths";
 
 const RegisterUser = () => {
-  const [name, setName] = useState("ABC");
-  const [email, setEmail] = useState("test@test.com");
-  const [age, setAge] = useState(12);
-  const [password, setPassword] = useState("12345");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [age, setAge] = useState();
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const registerUser = async (event) => {

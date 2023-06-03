@@ -1,5 +1,6 @@
 const db = require("../models");
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt')
 const User = db.users;
 const Op = db.Sequelize.Op;
 
@@ -14,21 +15,21 @@ exports.create = async (req, res) => {
   }
 
   const existingUser = await User.findOne({ where: { email } });
-
-  console.log(existingUser);
-
   if (existingUser) {
     return res.status(400).send({
       message: "This email is already in use",
     });
   }
 
+  const saltRounds = 10
+  const hashedPassword = await bcrypt.hash(password, saltRounds)
+
   // Create a User
   const user = {
     name,
     age,
     email,
-    password,
+    password: hashedPassword
   };
 
   // Save User in the database
@@ -53,8 +54,7 @@ exports.login = async (req, res) => {
         message: "Invalid credentials",
       });
     }
-
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ where: { email} });
 
     if (!user) {
       return res.status(400).send({
@@ -62,7 +62,13 @@ exports.login = async (req, res) => {
       });
     }
 
+    //password to remove from response
     const { password: passwordToRemoveFromRes, ...remainingData } = user;
+    const passwordMatched = await bcrypt.compare(password, passwordToRemoveFromRes)
+    console.log("Matched: ",passwordMatched)
+    if (!passwordMatched) {
+      return res.status(400).send({message: 'Incorrect Password'})
+    }
 
     const token = jwt.sign({ userId: remainingData.dataValues.id }, process.env.SECRET_KEY, {
       expiresIn: process.env.JWT_EXPIRES_IN,
